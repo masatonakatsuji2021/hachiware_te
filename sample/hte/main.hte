@@ -1,0 +1,40 @@
+TemplateEngine Test Sample...
+<?te
+var a1 = "aaaa";
+echo(a1);
+?>
+
+.....area.....
+
+<?te
+for(var n = 0 ; n < 5 ; n++){
+?>
+index = <?te echo(n); ?>
+<?te load("sub.hte",{ index: n }); ?>
+<?te
+}
+?>
+-----
+debug 
+
+<?te 
+var obj = new Object({
+	aaa: "bbbb",
+	ccc: { dd: "eee",
+		ff: "g!",
+	},
+});
+debug(obj);
+?>
+
+------
+sanitaize
+
+sainitize on :<?te 
+echo("<input type=\"text\" name=\"aaa\">");
+?>
+
+sanitize off :<?te 
+echo("<input type=\"text\" name=\"aaa\">", true);
+?>
+------

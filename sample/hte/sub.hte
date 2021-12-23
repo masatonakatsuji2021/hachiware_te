@@ -1,0 +1,4 @@
+	----
+	sub area
+	index = <?te echo(this.index); ?>
+	----
