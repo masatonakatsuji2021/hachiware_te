@@ -1,4 +1,4 @@
-const hachiware_te = require("../");
+const hachiware_te = require("hachiware_te");
 
 var hte = new hachiware_te({
 	path: __dirname + "/hte",
