@@ -1,25 +1,55 @@
 const fs = require("fs");
+const path0 = require("path");
 const tool = require("hachiware_tool");
 
 const Hachiware_TE = function(option){
 
 	var templateEngines = null;
+	var _sync = false;
 
 	if(!option){
 		option = {};
+	}
+
+	var _request = null;
+	if(option.request){
+		_request = option.request;
+	}
+
+	var _response = null;
+	if(option.response){
+		_response = option.response;
 	}
 
 	/**
 	 * setContents
 	 * @param {*} source 
 	 */
-	this.setContents = function(source){
+	this.setContents = function(source, callback){
 
 		const startTag = "<?te";
+		const startSyncTag = "<?sync";
 		const endTag = "?>";
 
 		var scripts = [];
 		var contents = [];
+		var syncScriptStr = "";
+
+		var syncBuffers = source.split(startSyncTag);
+
+		if(syncBuffers.length > 1){
+
+			_sync = true;
+
+			for(var n = 1 ; n < syncBuffers.length ; n++){
+				var b_ = syncBuffers[n];
+
+				var bsplit = b_.split(endTag);
+				syncScriptStr += bsplit[0];
+
+				source = source.replace(startSyncTag + bsplit[0] + endTag, "");
+			}
+		}
 
 		var buffers = source.split(startTag);
 
@@ -37,14 +67,14 @@ const Hachiware_TE = function(option){
 		for(var n = 0 ; n < contents.length ; n++){
 			var c_ = contents[n];
 
-			convertHtml += "_outToBase64(\"" + tool.base64Encode(c_) + "\", true);";
+			convertHtml += "\n_outToBase64(\"" + tool.base64Encode(c_) + "\");";
 
 			if(scripts[n]){
 				convertHtml += scripts[n];
 			}
 		}
 
-		const TemplateEngines = function(_html, option){
+		const TemplateEngines = function(_html, _syncScript, option, callback){
 
 			if(option.data){
 				var colums = Object.keys(option.data);
@@ -56,6 +86,9 @@ const Hachiware_TE = function(option){
 			}
 
 			var _string = "";
+			var _exited = false;
+			var _resolved = false;
+			var _exitData = null;
 
 			/**
 			 * sanitize
@@ -63,6 +96,17 @@ const Hachiware_TE = function(option){
 			 * @returns 
 			 */
 			const sanitize = function(str){
+
+				if(_exited){ return ; }
+
+				if(
+					str == undefined || 
+					str == null || 
+					str == NaN
+				){
+					str = "";
+				}
+
 				var sList = {
 					"<": "&lt;",
 					">": "&gt;",
@@ -82,6 +126,17 @@ const Hachiware_TE = function(option){
 			 * @param {*} unSanitaized 
 			 */
 			const echo = function(str, unSanitaized){
+
+				if(_exited){ return ; }
+
+				if(
+					str == undefined || 
+					str == null || 
+					str == NaN
+				){
+					str = "";
+				}
+
 				if(!unSanitaized){
 					str = sanitize(str);
 				}
@@ -93,6 +148,9 @@ const Hachiware_TE = function(option){
 			 * @param {*} object 
 			 */
 			const debug = function(object){
+
+				if(_exited){ return ; }
+
 				var className = "";
 				var end = "";
 				if(tool.objExists(object,"constructor.name")){
@@ -106,10 +164,21 @@ const Hachiware_TE = function(option){
 			 * load
 			 * @param {*} filePath 
 			 * @param {*} data 
+			 * @param {*} callback 
 			 */
-			const load = function(filePath, data){
-				var buffer = loadBuffer(filePath, data);
-				echo(buffer);
+			const load = function(filePath, data, callback){
+				
+				if(_exited){ return ; }
+
+				var buffer = loadBuffer(filePath, data, callback);
+
+				if(callback){
+					return;
+				}
+
+				_string += buffer.html;
+
+				return buffer.res;
 			};
 
 			/**
@@ -118,25 +187,212 @@ const Hachiware_TE = function(option){
 			 * @param {*} data 
 			 * @returns 
 			 */
-			const loadBuffer = function(filePath, data){
+			const loadBuffer = function(filePath, data, callback){
 
-				if(data){
-					option.data = data;
+				if(_exited){ return ; }
+
+				if(filePath.substring(0,1) == "/"){
+					var nextOption = {
+						path: option.currentPath,
+						currentPath: option.currentPath,
+						$parent: option,
+					};
+
+					var filePath2 = filePath;
+				}
+				else{
+					var nextOption = {
+						path: option.path + "/" + path0.dirname(filePath),
+						currentPath: option.currentPath,
+						$parent: option,
+					};
+
+					var filePath2 = path0.basename(filePath);
 				}
 
-				var hte = new Hachiware_TE(option);
-				return hte.setFile(filePath).out();
+			
+				nextOption.data = data;
+
+				var path = nextOption.path + "/" + filePath2;
+
+				try{
+
+					if(!fs.existsSync(path)){
+						throw Error("\"" + filePath + "\" is not found.");
+					}
+			
+					if(!fs.statSync(path).isFile()){
+						throw Error("\"" + filePath + "\" is not file.");
+					}
+	
+				}catch(error){
+					if(option.errorDebug){
+						echo(error.toString());
+					}
+
+					if(callback){
+						callback(null,null);
+					}
+					return;
+				}
+
+				var hte = new Hachiware_TE(nextOption);
+
+				if(callback){
+					hte.setFile(filePath2, function(html){
+						if(!html){
+							return;
+						}
+						callback(this._output, html);
+					});
+				}
+				else{
+					hte = hte.setFile(filePath2);
+
+					return {
+						html: hte.out(),
+						res: hte.getResData(),
+					};	
+				}
+			};
+
+			const request = {
+				get: function(name){
+					if(_exited){ return ;}
+
+					if(name){
+						if(_request[name]){
+							return _request[name];
+						}
+						else{
+							return null;
+						}
+
+					}
+					else{
+						return _request;
+					}
+				},
+				url: function(){
+					if(_exited){ return; }
+
+					return _request.url;
+				},
+				method: function(){
+					if(_exited){ return; }
+
+					return _request.method;
+				},
+				header: function(name){
+					if(_exited){ return; }
+
+					if(name){
+						if(_request.headers[name]){
+							return _request.headers[name];
+						}
+						else{
+							return null;
+						}
+					}
+					else{
+						return _request.headers;
+					}
+				},
+				query: function(name){
+					if(_exited){ return; }
+
+					if(!_request.query){
+						return null;
+					}
+
+					if(name){
+						if(_request.query[name]){
+							return _request.query[name];
+						}
+						else{
+							return null;
+						}
+					}
+					else{
+						return _request.query;
+					}
+				},
+				body: function(name){
+					if(_exited){ return; }
+
+					
+					if(!_request.body){
+						return null;
+					}
+
+					if(name){
+						if(_request.body[name]){
+							return _request.body[name];
+						}
+						else{
+							return null;
+						}
+					}
+					else{
+						return _request.body;
+					}
+				},
+			};
+
+
+			const response = {
+				get: function(name){
+					if(_exited){ return ;}
+
+					if(name){
+						if(_response[name]){
+							return _response[name];
+						}
+						else{
+							return null;
+						}
+
+					}
+					else{
+						return _response;
+					}
+				},
+				header: function(name, value){
+					if(_exited){ return ;}
+
+					if(!name){
+						return _response._header;
+					}
+
+					if(value){
+						_response.setHeader(name, value);
+					}
+					else{
+						_response.setHeader(name, "");
+					}
+				},
+				statusCode: function(code){
+					if(_exited){ return ;}
+
+					if(code){
+						_response.statusCode = code;
+					}
+					else{
+						return _response.statusCode;
+					}
+				},
 			};
 
 			/**
 			 * _outToBase64
-			 * @param {*} bstr 
-			 * @param {*} unSanitaized 
+			 * @param {*} bstr
 			 */
-			const _outToBase64 = function(bstr, unSanitaized){
+			const _outToBase64 = function(bstr){
 				var str = tool.base64Decode(bstr);
-				echo(str, unSanitaized);
+				_string += str;
 			};
+
+			this._output = null;
 
 			/**
 			 * _getHtmlSource
@@ -146,22 +402,82 @@ const Hachiware_TE = function(option){
 				return _string;
 			};
 
-			try{
-				eval(_html);
-			}catch(error){
+			var cond = this;
+
+			const throws = function(error){
 
 				if(option.errorDebug){
 					if(error.stack){
-						_string += error.stack
+						_string += error.stack;
 					}
 					else{
 						_string += error;
 					}
 				}
+
+				if(_response){
+
+					if(_response.statusCode == 200){
+						_response.statusCode = 500;
+					}
+					if(callback){
+						callback.bind(cond)(_string, _request, _response, error);
+					}
+				}
+			};
+
+			/**
+			 * resolve
+			 * @returns 
+			 */
+			var resolve = function(data){
+
+				_exitData = data;
+
+				if(!_sync){
+					_exited = true;
+					return;
+				}
+			
+				if(_resolved){ return;}
+
+				_resolved = true;
+	
+				try{
+					eval(_html);
+					if(_exitData){
+						this._output = _exitData;
+					}
+					callback.bind(cond)(_string, _request, _response);
+				}catch(error){
+					throws(error);
+				}
+			};
+
+			resolve = resolve.bind(this);
+
+			try{
+				if(_sync){
+					eval(_syncScript);
+				}
+				else{
+					eval(_html);
+	
+					if(_exitData){
+						this._output = _exitData;
+					}
+
+					if(callback){
+						callback.bind(cond)(_string, _request, _response);
+					}
+				}
+			}catch(error){
+				console.log(error);
+				throws(error);
 			}
 		};
 
-		templateEngines = new TemplateEngines(convertHtml, option);
+		templateEngines = new TemplateEngines(convertHtml, syncScriptStr, option, callback);
 
 		return this;
 	};
@@ -171,24 +487,46 @@ const Hachiware_TE = function(option){
 	 * @param {*} filePath 
 	 * @returns 
 	 */
-	this.setFile = function(filePath){
+	this.setFile = function(filePath, callback){
 
 		if(!option.path){
 			option.path = "";
 		}
 
-		var path = option.path + "/" + filePath;
-
-		if(!fs.existsSync(path)){
-			throw Error("\"" + filePath + "\" is not found.");
+		if(!option.currentPath){
+			option.currentPath = option.path;
 		}
 
-		if(!fs.statSync(path).isFile()){
-			throw Error("\"" + filePath + "\" is not file.");
+		var path = option.path + "/" + filePath;
+
+		path = path.split("//").join("/");
+
+		try{
+
+			if(!fs.existsSync(path)){
+				throw Error("\"" + filePath + "\" is not found.");
+			}
+	
+			if(!fs.statSync(path).isFile()){
+				throw Error("\"" + filePath + "\" is not file.");
+			}
+	
+		}catch(error){
+			
+			if(callback){
+
+				if(option.response){
+					option.response.statusCode = 404;
+				}
+
+				callback("", option.request, option.response, error);
+			}
+
+			return;
 		}
 
 		var text = fs.readFileSync(path).toString();
-		return this.setContents(text);
+		return this.setContents(text, callback);
 	};
 
 	/**
@@ -203,6 +541,35 @@ const Hachiware_TE = function(option){
 
 		return templateEngines._getHtmlSource();
 	};
+
+	this.getResData = function(){
+
+		if(!templateEngines._output){
+			return;
+		}
+
+		return templateEngines._output;
+	};
+
+	this.load = function(filePath, callback){
+
+		if(callback){
+			this.setFile(filePath, callback);
+		}
+		else{
+			return this.setFile(filePath).out();
+		}
+
+	};
+
+	if(option.load){
+		if(option.callback){
+			this.load(option.load, option.callback);
+		}
+		else{
+			this.load(option.load);
+		}
+	}
 
 };
 module.exports = Hachiware_TE;
