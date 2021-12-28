@@ -233,6 +233,9 @@ const Hachiware_TE = function(option){
 					if(callback){
 						callback(null,null);
 					}
+					else{
+						echo(error.toString());
+					}
 					return;
 				}
 
@@ -240,9 +243,6 @@ const Hachiware_TE = function(option){
 
 				if(callback){
 					hte.setFile(filePath2, function(html){
-						if(!html){
-							return;
-						}
 						callback(this._output, html);
 					});
 				}
@@ -512,7 +512,7 @@ const Hachiware_TE = function(option){
 			}
 	
 		}catch(error){
-			
+						
 			if(callback){
 
 				if(option.response){
