@@ -165,12 +165,13 @@ const Hachiware_TE = function(option){
 			 * @param {*} filePath 
 			 * @param {*} data 
 			 * @param {*} callback 
+			 * @param {*} catchCallback 
 			 */
-			const load = function(filePath, data, callback){
+			const load = function(filePath, data, callback, catchCallback){
 				
 				if(_exited){ return ; }
 
-				var buffer = loadBuffer(filePath, data, callback);
+				var buffer = loadBuffer(filePath, data, callback, catchCallback);
 
 				if(callback){
 					return;
@@ -185,9 +186,11 @@ const Hachiware_TE = function(option){
 			 * loadBuffer
 			 * @param {*} filePath 
 			 * @param {*} data 
+			 * @param {*} callback 
+			 * @param {*} catchCallback 
 			 * @returns 
 			 */
-			const loadBuffer = function(filePath, data, callback){
+			const loadBuffer = function(filePath, data, callback, catchCallback){
 
 				if(_exited){ return ; }
 
@@ -226,16 +229,22 @@ const Hachiware_TE = function(option){
 					}
 	
 				}catch(error){
-					if(option.errorDebug){
-						echo(error.toString());
+
+					if(callback || catchCallback){
+						if(catchCallback){
+							catchCallback(error);
+						}
+					}
+					else{
+						if(option.errorDebug){
+							echo(error.message.toString());
+						}	
 					}
 
 					if(callback){
-						callback(null,null);
+						callback(null,null, error);
 					}
-					else{
-						echo(error.toString());
-					}
+
 					return;
 				}
 
