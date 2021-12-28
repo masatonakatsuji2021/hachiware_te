@@ -163,34 +163,23 @@ const Hachiware_TE = function(option){
 			/**
 			 * load
 			 * @param {*} filePath 
-			 * @param {*} data 
-			 * @param {*} callback 
-			 * @param {*} catchCallback 
+			 * @param {*} data
 			 */
-			const load = function(filePath, data, callback, catchCallback){
+			const load = function(filePath, data){
 				
 				if(_exited){ return ; }
 
-				var buffer = loadBuffer(filePath, data, callback, catchCallback);
-
-				if(callback){
-					return;
-				}
-
-				_string += buffer.html;
-
-				return buffer.res;
+				var buffer = loadBuffer(filePath, data);
+				_string += buffer;
 			};
 
 			/**
 			 * loadBuffer
 			 * @param {*} filePath 
 			 * @param {*} data 
-			 * @param {*} callback 
-			 * @param {*} catchCallback 
 			 * @returns 
 			 */
-			const loadBuffer = function(filePath, data, callback, catchCallback){
+			const loadBuffer = function(filePath, data){
 
 				if(_exited){ return ; }
 
@@ -212,7 +201,6 @@ const Hachiware_TE = function(option){
 
 					var filePath2 = path0.basename(filePath);
 				}
-
 			
 				nextOption.data = data;
 
@@ -230,39 +218,55 @@ const Hachiware_TE = function(option){
 	
 				}catch(error){
 
-					if(callback || catchCallback){
-						if(catchCallback){
-							catchCallback(error);
-						}
-					}
-					else{
-						if(option.errorDebug){
-							echo(error.message.toString());
-						}	
-					}
-
-					if(callback){
-						callback(null,null, error);
+					if(option.errorDebug){
+						echo(error.toString());
 					}
 
 					return;
 				}
 
 				var hte = new Hachiware_TE(nextOption);
+				return hte.setFile(filePath2).out();
+			};
 
-				if(callback){
-					hte.setFile(filePath2, function(html){
-						callback(this._output, html);
-					});
+			/**
+			 * loadJs
+			 * @param {*} filePath 
+			 * @returns 
+			 */
+			const loadJs = function(filePath){
+				if(_exited){ return ; }
+	
+				if(filePath.substring(0,1) == "/"){
+					var _path = option.currentPath;
+					var filePath2 = filePath;
 				}
 				else{
-					hte = hte.setFile(filePath2);
-
-					return {
-						html: hte.out(),
-						res: hte.getResData(),
-					};	
+					var _path = option.path + "/" + path0.dirname(filePath);
+					var filePath2 = path0.basename(filePath);
 				}
+			
+				var path = _path + "/" + filePath2;
+
+				try{
+
+					if(!fs.existsSync(path)){
+						throw Error("\"" + filePath + "\" is not found.");
+					}
+			
+					if(!fs.statSync(path).isFile()){
+						throw Error("\"" + filePath + "\" is not file.");
+					}
+	
+				}catch(error){
+
+					if(option.errorDebug){
+						echo(error.toString());
+					}
+					return;
+				}
+
+				return require(path);
 			};
 
 			const request = {
@@ -401,8 +405,6 @@ const Hachiware_TE = function(option){
 				_string += str;
 			};
 
-			this._output = null;
-
 			/**
 			 * _getHtmlSource
 			 * @returns 
@@ -454,9 +456,6 @@ const Hachiware_TE = function(option){
 	
 				try{
 					eval(_html);
-					if(_exitData){
-						this._output = _exitData;
-					}
 					callback.bind(cond)(_string, _request, _response);
 				}catch(error){
 					throws(error);
@@ -471,11 +470,6 @@ const Hachiware_TE = function(option){
 				}
 				else{
 					eval(_html);
-	
-					if(_exitData){
-						this._output = _exitData;
-					}
-
 					if(callback){
 						callback.bind(cond)(_string, _request, _response);
 					}
@@ -549,15 +543,6 @@ const Hachiware_TE = function(option){
 		}
 
 		return templateEngines._getHtmlSource();
-	};
-
-	this.getResData = function(){
-
-		if(!templateEngines._output){
-			return;
-		}
-
-		return templateEngines._output;
 	};
 
 	this.load = function(filePath, callback){
