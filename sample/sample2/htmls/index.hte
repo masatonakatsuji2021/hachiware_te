@@ -1,0 +1,19 @@
+<?te 
+var data = { title: "TOP Page"}
+load("common/header.hte",data); 
+?>
+
+<div>
+    <p>Main Page..</p>
+    <p><a href="/page_1">Page 1</a></p>
+    <p><a href="/page_2">Page 2 (Synchronous support)</a></p>
+    <p><a href="/page_2a">Page 2A (404 not found)</a></p>
+    <p><a href="/page_2b">Page 2B (500 iNTERNAL SERVER ERROR)</a></p>
+    <p><a href="/page_3">Page 3 (get config load sample)</a></p>
+    <p><a href="/page_4">Page 4 (Synchronous support and get config load sample)</a></p>
+    <p><a href="/page_5">Page 5 (Get Web Request)</a></p>
+    <p><a href="/page_6">Page 6 (Web Response redirect) -> Page 1</a></p>
+    <p><a href="/page_7">Page 7 (Debug Sample)</a></p>
+</div>
+
+<?te load("common/footer.hte"); ?>

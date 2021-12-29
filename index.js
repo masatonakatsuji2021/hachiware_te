@@ -11,14 +11,14 @@ const Hachiware_TE = function(option){
 		option = {};
 	}
 
-	var _request = null;
+	var request = null;
 	if(option.request){
-		_request = option.request;
+		request = option.request;
 	}
 
-	var _response = null;
+	var response = null;
 	if(option.response){
-		_response = option.response;
+		response = option.response;
 	}
 
 	/**
@@ -157,7 +157,21 @@ const Hachiware_TE = function(option){
 					className = object.constructor.name + " (";
 					end = "}";
 				}
-				echo(className + JSON.stringify(object,null,"  ") + end);
+
+				const getCircularReplacer = () => {
+					const seen = new WeakSet();
+					return (key, value) => {
+						if (typeof value === "object" && value !== null) {
+							if (seen.has(value)) {
+							return;
+						}
+						seen.add(value);
+					  }
+					  return value;
+					};
+				};
+				
+				echo(className + JSON.stringify(object,getCircularReplacer(),"    ") + end);
 			};
 
 			/**
@@ -269,133 +283,6 @@ const Hachiware_TE = function(option){
 				return require(path);
 			};
 
-			const request = {
-				get: function(name){
-					if(_exited){ return ;}
-
-					if(name){
-						if(_request[name]){
-							return _request[name];
-						}
-						else{
-							return null;
-						}
-
-					}
-					else{
-						return _request;
-					}
-				},
-				url: function(){
-					if(_exited){ return; }
-
-					return _request.url;
-				},
-				method: function(){
-					if(_exited){ return; }
-
-					return _request.method;
-				},
-				header: function(name){
-					if(_exited){ return; }
-
-					if(name){
-						if(_request.headers[name]){
-							return _request.headers[name];
-						}
-						else{
-							return null;
-						}
-					}
-					else{
-						return _request.headers;
-					}
-				},
-				query: function(name){
-					if(_exited){ return; }
-
-					if(!_request.query){
-						return null;
-					}
-
-					if(name){
-						if(_request.query[name]){
-							return _request.query[name];
-						}
-						else{
-							return null;
-						}
-					}
-					else{
-						return _request.query;
-					}
-				},
-				body: function(name){
-					if(_exited){ return; }
-
-					
-					if(!_request.body){
-						return null;
-					}
-
-					if(name){
-						if(_request.body[name]){
-							return _request.body[name];
-						}
-						else{
-							return null;
-						}
-					}
-					else{
-						return _request.body;
-					}
-				},
-			};
-
-
-			const response = {
-				get: function(name){
-					if(_exited){ return ;}
-
-					if(name){
-						if(_response[name]){
-							return _response[name];
-						}
-						else{
-							return null;
-						}
-
-					}
-					else{
-						return _response;
-					}
-				},
-				header: function(name, value){
-					if(_exited){ return ;}
-
-					if(!name){
-						return _response._header;
-					}
-
-					if(value){
-						_response.setHeader(name, value);
-					}
-					else{
-						_response.setHeader(name, "");
-					}
-				},
-				statusCode: function(code){
-					if(_exited){ return ;}
-
-					if(code){
-						_response.statusCode = code;
-					}
-					else{
-						return _response.statusCode;
-					}
-				},
-			};
-
 			/**
 			 * _outToBase64
 			 * @param {*} bstr
@@ -426,13 +313,13 @@ const Hachiware_TE = function(option){
 					}
 				}
 
-				if(_response){
+				if(response){
 
-					if(_response.statusCode == 200){
-						_response.statusCode = 500;
+					if(response.statusCode == 200){
+						response.statusCode = 500;
 					}
 					if(callback){
-						callback.bind(cond)(_string, _request, _response, error);
+						callback.bind(cond)(_string, request, response, error);
 					}
 				}
 			};
@@ -456,7 +343,7 @@ const Hachiware_TE = function(option){
 	
 				try{
 					eval(_html);
-					callback.bind(cond)(_string, _request, _response);
+					callback.bind(cond)(_string, request, response);
 				}catch(error){
 					throws(error);
 				}
@@ -471,7 +358,7 @@ const Hachiware_TE = function(option){
 				else{
 					eval(_html);
 					if(callback){
-						callback.bind(cond)(_string, _request, _response);
+						callback.bind(cond)(_string, request, response);
 					}
 				}
 			}catch(error){

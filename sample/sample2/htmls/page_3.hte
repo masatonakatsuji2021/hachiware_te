@@ -1,0 +1,14 @@
+<?te 
+var data = {title: "Page 3 (get config load sample)"};
+load("common/header.hte", data);
+?>
+
+<?te var data = loadJs("js/loadtest.js"); ?>
+
+<div>
+    <p>aaa = <?te echo(data.aaa); ?></p>
+    <p>ccc = <?te echo(data.ccc); ?></p>
+    <p><a href="/">Back</a></p>
+</div>
+
+<?te load("common/footer.hte"); ?>

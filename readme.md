@@ -75,6 +75,59 @@ The part surrounded by `` <? Te`` and ``?> `` Is the script execution part.
 By implementing the code in the template engine file in this way, you can easily create a template.  
 More detailed usage is described below.
 
+
+---
+
+## # Settings for various constructors
+
+The outline of the argument when specifying the constructor of hte class is as follows.
+
+|item|require|Overview|
+|:--|:--|:--|
+|path|〇|Current directory path|
+|load|〇|Template file name to be read|
+|errorDebug|-|Error debugging settings|
+|request|-|Request object<br>Taken over from http module or https module|
+|response|-|Response object<br>Taken over from http module or https module|
+|callback|-|Execution callback after the conversion of the template file is completed<br>Use this callback if sync support is not included|
+
+---
+
+## # Output after template conversion
+
+If you want to output the character string after converting the template file, use the ``out`` method.
+
+After initializing the hachiware_te class as shown in the code below, it will be output by using the out method.
+
+```javascript
+const hachiware_te = require("hachiware_te");
+
+var hte = new hachiware_te({
+	path: __dirname + "/hte",
+    load: "main.hte",
+	errorDebug: true,
+});
+
+console.log(hte.out());
+```
+
+As a caveat, if the template contains code that requires synchronization such as wait processing, it will not be output.  
+In that case, it is recommended to use a callback as shown below.
+
+```javascript
+const hachiware_te = require("hachiware_te");
+
+var hte = new hachiware_te({
+	path: __dirname + "/hte",
+    load: "main.hte",
+	errorDebug: true,
+    callback: function(html){
+
+        console.log(html);
+    },
+});
+```
+
 ---
 
 ## # Functions on the template
@@ -140,6 +193,24 @@ By specifying true for the second argument, sanitization can be temporarily stop
 
 However, please note that the output with sanitization stopped is a security risk.
 
+---
+
+### - Get sanitized results (sanitize)
+
+If you want to sanitize the string once, use the `` sanitize`` method.
+
+Specify a character string as an argument, and the character string after sanitization processing is returned as the return value.
+
+```php
+<?te 
+var text = sanitize("< input type=\"text\">"); 
+echo(text);
+?>
+
+```
+
+---
+
 ### - About the hotness of variables
 
 Variables can be placed anywhere between `` <? Te ~?> ``.
@@ -177,7 +248,7 @@ For example, in the following cases, the result will output an empty string.
 setTimeout(function(){
 
     value = "abcdefg";
-},2000);
+    
 ?>
 
 
@@ -188,7 +259,20 @@ setTimeout(function(){
 
 ---
 
-### - Loading another hte file
+### - Debug output (debug)
+
+You can easily debug variables using the ``debug`` method.  
+Specify the variable or character string to be debugged in the argument
+
+```php
+<?te debug(this); ?>
+```
+
+If the variable is an object or an array value, it will automatically output the parsed result.
+
+---
+
+### - Loading another hte file (load)
 
 If you want to load another template engine file (hte file) and output it, use the ``load`` method.
 
@@ -234,4 +318,194 @@ Footer Area...
 --------------------------
 ```
 
+If you want to inherit some data, specify the variable in the second argument.
+
+```php
+<?te
+var data = {
+    name:"test",
+    title:"load test",
+};
+load("testload.hte",data); ?>
+```
+
+``testload.hte``.
+
+```php
+--------------------------
+name = <?te echo(this.name); ?>
+title = <?te echo(this.title); ?>
+--------------------------
+```
 ---
+
+### - Load another hte file (get result without output) (loadBuffer)
+
+The ``load`` method reads the hte file separately and outputs its contents,
+If you want to get the load result temporarily instead of output, use the ``loadBuffer`` method instead.
+
+The argument specification is almost the same as the ``load`` method.
+
+The result of reading the hte file is returned as the return value.
+
+```php
+<?te
+var text = loadBuffer("get_text.hte");
+echo("[" + text + "]");
+?>
+```
+
+---
+
+### - Read external JS file (loadJs)
+
+Use the ``loadJs`` method to load an external js file other than modules (node_modules).
+Normally, it can be read by using ``require``, but the difference is that the method of specifying the path is different.
+
+For example, in the following cases, even if the ``load_test.js`` file is prepared, an error "If the file does not exist" is output.
+
+```php
+<?te var data = require("load_test.js"); ?>
+```
+
+Replace it with loadJS as shown below.
+
+```php
+<?te var data = loadJs("load_test.js"); ?>
+```
+
+The return value data is the same as the return value of require.
+
+---
+
+### - Support for synchronous processing
+
+It corresponds to the case where processing with a temporary wait state such as an external request or setTimeout occurs.
+
+In that case, use the ``<?sync~?> `` Tag instead of the ``<?te~?> ``.
+
+If the ``<?sync`` tag is present in the hte file, the code in the ``<?sync`` tab will be executed first.  
+By executing the ``resolve`` method when all the wait processes are completed,  
+The rest of the text and HTML tags are displayed and the processing inside the ``<?te`` method is performed.
+
+If the execution form is ``<?sync``, it will be roughly divided into two stages: back-end processing, and if it is ``<?te``, it will be front-end processing.
+
+```php
+<?sync
+
+    /**
+     * 
+     * Synchronous processing compatible part
+     * 
+     * This is the priority execution
+     * 
+     */
+
+    resolve();      // <= End synchronization process
+?>
+
+------------------------------------------------------------------
+
+Display this content after the synchronization process resolves
+
+------------------------------------------------------------------
+```
+
+※　For backends that would normally perform standby processing, execute them in advance, and then after the backend processing is completed.  
+Template engines are commonly used for screen display.  
+This specification assumes the case of endpoint expansion for each file like php.
+
+As an installation example, the code is written as follows.  
+To reproduce the standby state, setTimeout acquires the current time after a blank for 2 seconds and outputs it.
+
+```php
+<?sync
+
+var text = null;
+setTimeout(function(){
+
+    var d = new Date();
+    text = d.getFullYear() + "/" + (d.getMonth() + 1) + "/" + d.getDate();
+
+    resolve();
+
+},2000);
+?>
+----
+now Date = <?te echo(text); ?>
+```
+
+This makes it possible to output with the following contents after a waiting time of 2 seconds.
+
+```
+
+----
+now Date = 2021/12/28
+```
+
+---
+
+### - Web requests and responses
+
+Via the http or https module
+You can use the request object or response object as it is.
+
+First, write ``index.js`` as follows.
+
+```javascript
+const hte = require("hachiware_te");
+const http = require("http");
+
+var h = http.createServer(function(req,res){
+
+    new hte({
+        errorDebug: true,
+        path: __dirname,
+        load: "index.hte",
+        request: req,                   // <= Set the request object here
+        response: res,                  // <= Set the response object here
+        callback: function(html, req, res,error){
+
+            res.write(html);
+            res.end();
+        },
+    });
+
+});
+
+h.listen(1122);
+
+```
+
+Set the ``index.hte`` file as shown below.
+
+```html
+<p>METHOD = <?te echo(request.method); ?></p>
+<p>URL = <?te echo(request.url); ?></p>
+```
+
+After that, with index.js executed and the server started,
+Access ``http://localhost: 1122`` in your browser.
+
+This will output the following results.
+
+```
+METHOD = GET
+
+URL = /page_5
+```
+
+Response objects can be used as well.  
+You can change the status code on ``index.hte`` as shown below.
+
+```html
+<?te
+response:statusCode = 404;
+?>
+<p>404 Page Not Found.</p>
+```
+If an error occurs, it will be carried over to the callback argument.
+
+---
+
+AutAuthor : Nakatsuji Masato.

@@ -1,0 +1,24 @@
+<?sync
+
+var _value = null;
+const func = loadJs("js/loadtest_sync.js");
+func(function(value){
+
+
+    _value = value;
+    resolve();
+
+});
+?>
+
+<?te 
+var data = {title: "Page 4 (Synchronous support and get config load sample)"};
+load("common/header.hte", data); 
+?>
+
+<div>
+    <p>Value = <?te echo(_value); ?></p>
+    <p><a href="/">Back</a></p>
+</div>
+
+<?te load("common/footer.hte"); ?>

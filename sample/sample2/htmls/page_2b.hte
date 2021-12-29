@@ -1,0 +1,12 @@
+<?te 
+var data = {title: "Page 2B (500 iNTERNAL SERVER ERROR)"};
+load("common/header.hte", data); 
+?>
+
+<div>
+    <pre>
+    <?te throw Error("Test Error"); ?>
+    </pre>
+</div>
+
+<?te load("common/footer.hte"); ?>

@@ -1,0 +1,10 @@
+<?te 
+var data = {title: "Page 7 (Debug Sample)"};
+load("common/header.hte", data); 
+?>
+
+<pre>
+<?te debug(response); ?>
+</pre>
+
+<?te load("common/footer.hte"); ?>

@@ -1,0 +1,23 @@
+{
+  "name": "hachiware_te",
+  "version": "1.0.0",
+  "description": "Template engine for Simble web pages.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/masatonakatsuji2021/hachiware_te.git"
+  },
+  "keywords": [
+    "template engine",
+    "javascript"
+  ],
+  "author": "Nakatsuji Masato",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/masatonakatsuji2021/hachiware_te/issues"
+  },
+  "homepage": "https://github.com/masatonakatsuji2021/hachiware_te#readme"
+}
