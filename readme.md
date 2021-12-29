@@ -1,6 +1,7 @@
 # Hachiware_TE (TemplateEngine)
 
-Template engine for nimble web pages.
+Template engine for nimble web pages.  
+I think it's better than "EJS".
 
 ---
 
@@ -23,7 +24,7 @@ npm i hachiware_te
 All you have to do is add the package require code to index.js etc. and you're ready to go.
 
 ```javascript
-const hte = require("hachiware_te");
+const hachiware_te = require("hachiware_te");
 ```
 
 ---
@@ -38,9 +39,9 @@ Place the ``index.js`` file in any directory and write the following code.
 const hachiware_te = require("hachiware_te");
 
 var hte = new hachiware_te({
-	path: __dirname + "/hte",
+    path: __dirname + "/hte",
     load: "main.hte",
-	errorDebug: true,
+    errorDebug: true,
 });
 
 console.log(hte.out());
@@ -103,9 +104,9 @@ After initializing the hachiware_te class as shown in the code below, it will be
 const hachiware_te = require("hachiware_te");
 
 var hte = new hachiware_te({
-	path: __dirname + "/hte",
+    path: __dirname + "/hte",
     load: "main.hte",
-	errorDebug: true,
+    errorDebug: true,
 });
 
 console.log(hte.out());
@@ -118,9 +119,9 @@ In that case, it is recommended to use a callback as shown below.
 const hachiware_te = require("hachiware_te");
 
 var hte = new hachiware_te({
-	path: __dirname + "/hte",
+    path: __dirname + "/hte",
     load: "main.hte",
-	errorDebug: true,
+    errorDebug: true,
     callback: function(html){
 
         console.log(html);
@@ -188,7 +189,7 @@ By specifying true for the second argument, sanitization can be temporarily stop
 
 
 ```php
-<?te echo("<input type=\"text\" name=\"your_name\">", false); ?>
+<?te echo("<input type=\"text\" name=\"your_name\">", true); ?>
 ```
 
 However, please note that the output with sanitization stopped is a security risk.
@@ -248,7 +249,8 @@ For example, in the following cases, the result will output an empty string.
 setTimeout(function(){
 
     value = "abcdefg";
-    
+
+},2000);
 ?>
 
 
@@ -256,6 +258,8 @@ setTimeout(function(){
 
 <?te echo(value); ?>
 ```
+
+[Here](#sync) explains about synchronization support.
 
 ---
 
@@ -377,6 +381,8 @@ Replace it with loadJS as shown below.
 The return value data is the same as the return value of require.
 
 ---
+
+<a id="sync"></a>
 
 ### - Support for synchronous processing
 
