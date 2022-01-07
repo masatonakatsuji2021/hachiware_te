@@ -2,6 +2,7 @@
 
 <a href="https://github.com/masatonakatsuji2021/hachiware_te"><img alt="GitHub license" src="https://img.shields.io/github/license/masatonakatsuji2021/hachiware_te"></a>
 <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/masatonakatsuji2021/hachiware_te">
+<img alt="GitHub top language" src="https://img.shields.io/github/languages/top/masatonakatsuji2021/hachiware_te">
 
 Template engine for nimble web pages.  
 I think it's better than "EJS".
