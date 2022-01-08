@@ -1,3 +1,7 @@
+<p align="center">
+    <img src="https://github.com/masatonakatsuji2021/hachiware_te/raw/master/logo.png" alt="hachiware server">
+</p>
+
 # Hachiware_TE (TemplateEngine)
 
 <a href="https://github.com/masatonakatsuji2021/hachiware_te"><img alt="GitHub license" src="https://img.shields.io/github/license/masatonakatsuji2021/hachiware_te"></a>
