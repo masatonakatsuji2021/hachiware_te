@@ -1,3 +1,17 @@
+/**
+ * ===================================================================================================
+ * hachiware_te
+ * 
+ * node.js Template Engine.
+ * 
+ * License : MIT License. 
+ * Since   : 2022.01.15
+ * Author  : Nakatsuji Masato 
+ * GitHub  : https://github.com/masatonakatsuji2021/hachiware_te
+ * npm     : https://www.npmjs.com/package/hachiware_te
+ * ===================================================================================================
+ */
+
 const fs = require("fs");
 const path0 = require("path");
 const tool = require("hachiware_tool");
@@ -432,6 +446,12 @@ const Hachiware_TE = function(option){
 		return templateEngines._getHtmlSource();
 	};
 
+	/**
+	 * load
+	 * @param {*} filePath 
+	 * @param {*} callback 
+	 * @returns 
+	 */
 	this.load = function(filePath, callback){
 
 		if(callback){
