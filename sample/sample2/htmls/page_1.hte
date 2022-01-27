@@ -1,9 +1,13 @@
 <?te 
+
 var data = { title: "Page 1"}
+
 load("common/header.hte", data);
+
 ?>
 
 <div>
+    <h2>Page 1</h2>
     <a href="/">Back</a>
 </div>
 

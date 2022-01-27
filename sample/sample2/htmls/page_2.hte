@@ -17,6 +17,7 @@ load("common/header.hte",data);
 ?>
 
 <div>
+    <h2>Page 2</h2>
     <p>Now Date = <?te echo(nowDate); ?></p>
     <p><a href="/">Back</a></p>
 </div>
