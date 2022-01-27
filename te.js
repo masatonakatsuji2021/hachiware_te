@@ -171,7 +171,16 @@ module.exports = function(Hachiware_TE, _html, _sync, _syncScript, option, callb
 					var filePath2 = path0.basename(filePath);
 				}
 			
-				nextOption.data = data;
+				nextOption.data = option.data;
+				if(data){
+					var colums =Object.keys(data);
+					for(var n = 0 ; n < colums.length ; n++){
+						var field = colums[n];
+						var value = data[field];
+						
+						nextOption.data[field] = value;
+					}
+				}
 
 				var path = nextOption.path + "/" + filePath2;
 
