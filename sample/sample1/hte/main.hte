@@ -1,23 +1,23 @@
 TemplateEngine Test Sample...
-<?te
+<?hte
 var a1 = "aaaa";
 echo(a1);
 ?>
 
 .....area.....
 
-<?te
+<?hte
 for(var n = 0 ; n < 5 ; n++){
 ?>
-index = <?te echo(n); ?>
-<?te load("sub.hte",{ index: n }); ?>
-<?te
+index = <?hte echo(n); ?>
+<?hte load("sub.hte",{ index: n }); ?>
+<?hte
 }
 ?>
 -----
 debug 
 
-<?te 
+<?hte 
 var obj = new Object({
 	aaa: "bbbb",
 	ccc: { dd: "eee",
@@ -30,11 +30,11 @@ debug(obj);
 ------
 sanitaize
 
-sainitize on :<?te 
+sainitize on :<?hte 
 echo("<input type=\"text\" name=\"aaa\">");
 ?>
 
-sanitize off :<?te 
+sanitize off :<?hte 
 echo("<input type=\"text\" name=\"aaa\">", true);
 ?>
 ------

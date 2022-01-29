@@ -62,9 +62,9 @@ Create a ``hte/main.hte`` file from the directory containing the above indedx.js
 ```php
 Hallo World..!
 
-<?te var nowDate = d.getFullYear() + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + ("0" + d.getDate()).slice(-2); ?>
+<?hte var nowDate = d.getFullYear() + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + ("0" + d.getDate()).slice(-2); ?>
 
-NowDate = <?te echo(nowDate); ?>
+NowDate = <?hte echo(nowDate); ?>
 
 ..... Exit;
 ```
@@ -152,15 +152,15 @@ Specify the character string to be output as an argument.
 ```php
 Hallo World!
 
-<?te echo("My Name Is cat!"); ?>
+<?hte echo("My Name Is cat!"); ?>
 
 ....
 
-<?te echo("Who Are You?"); ?>
+<?hte echo("Who Are You?"); ?>
 
 ...
 
-<?te echo("....Oh!"); ?>
+<?hte echo("....Oh!"); ?>
 
 ......Exit!
 ```
@@ -186,7 +186,7 @@ Who Are You?
 If you specify a tag in the `` echo`` method, it is safely sanitized by default.
 
 ```php
-<?te echo("<input type=\"text\" name=\"your_name\">"); ?>
+<?hte echo("<input type=\"text\" name=\"your_name\">"); ?>
 ```
 
 In the above case, the output will be as follows.
@@ -199,7 +199,7 @@ By specifying true for the second argument, sanitization can be temporarily stop
 
 
 ```php
-<?te echo("<input type=\"text\" name=\"your_name\">", true); ?>
+<?hte echo("<input type=\"text\" name=\"your_name\">", true); ?>
 ```
 
 However, please note that the output with sanitization stopped is a security risk.
@@ -213,7 +213,7 @@ If you want to sanitize the string once, use the `` sanitize`` method.
 Specify a character string as an argument, and the character string after sanitization processing is returned as the return value.
 
 ```php
-<?te 
+<?hte 
 var text = sanitize("< input type=\"text\">"); 
 echo(text);
 ?>
@@ -227,13 +227,13 @@ echo(text);
 Variables can be placed anywhere between `` <? Te ~?> ``.
 
 ```php
-<?te
+<?hte
 var test = "abcdefg";
 ?>
 
 .... sampletexttext.....
 
-<?te echo(test); ?>
+<?hte echo(test); ?>
 ```
 
 Variables can be inherited even if the script part is separated as described above.
@@ -254,7 +254,7 @@ The correspondence of synchronous processing will be described later, but
 For example, in the following cases, the result will output an empty string.
 
 ```php
-<?te
+<?hte
 
 setTimeout(function(){
 
@@ -266,7 +266,7 @@ setTimeout(function(){
 
 .... sampletexttext.....
 
-<?te echo(value); ?>
+<?hte echo(value); ?>
 ```
 
 [Here](#sync) explains about synchronization support.
@@ -279,7 +279,7 @@ You can easily debug variables using the ``debug`` method.
 Specify the variable or character string to be debugged in the argument
 
 ```php
-<?te debug(this); ?>
+<?hte debug(this); ?>
 ```
 
 If the variable is an object or an array value, it will automatically output the parsed result.
@@ -293,11 +293,11 @@ If you want to load another template engine file (hte file) and output it, use t
 Specify the path of the hte file as an argument
 
 ```php
-<?te load("common/header.hte"); ?>
+<?hte load("common/header.hte"); ?>
 
 contents area....
 
-<?te load("common/footer.hte"); ?>
+<?hte load("common/footer.hte"); ?>
 ```
 
 Set the following code for the ``common/header.hte`` file and the ``common/footer.hte`` respectively on the directory where the ``main.hte`` file is located.
@@ -335,7 +335,7 @@ Footer Area...
 If you want to inherit some data, specify the variable in the second argument.
 
 ```php
-<?te
+<?hte
 var data = {
     name:"test",
     title:"load test",
@@ -347,8 +347,8 @@ load("testload.hte",data); ?>
 
 ```php
 --------------------------
-name = <?te echo(this.name); ?>
-title = <?te echo(this.title); ?>
+name = <?hte echo(this.name); ?>
+title = <?hte echo(this.title); ?>
 --------------------------
 ```
 ---
@@ -363,7 +363,7 @@ The argument specification is almost the same as the ``load`` method.
 The result of reading the hte file is returned as the return value.
 
 ```php
-<?te
+<?hte
 var text = loadBuffer("get_text.hte");
 echo("[" + text + "]");
 ?>
@@ -379,13 +379,13 @@ Normally, it can be read by using ``require``, but the difference is that the me
 For example, in the following cases, even if the ``load_test.js`` file is prepared, an error "If the file does not exist" is output.
 
 ```php
-<?te var data = require("load_test.js"); ?>
+<?hte var data = require("load_test.js"); ?>
 ```
 
 Replace it with loadJS as shown below.
 
 ```php
-<?te var data = loadJs("load_test.js"); ?>
+<?hte var data = loadJs("load_test.js"); ?>
 ```
 
 The return value data is the same as the return value of require.
@@ -398,13 +398,13 @@ The return value data is the same as the return value of require.
 
 It corresponds to the case where processing with a temporary wait state such as an external request or setTimeout occurs.
 
-In that case, use the ``<?sync~?> `` Tag instead of the ``<?te~?> ``.
+In that case, use the ``<?sync~?> `` Tag instead of the ``<?hte~?> ``.
 
 If the ``<?sync`` tag is present in the hte file, the code in the ``<?sync`` tab will be executed first.  
 By executing the ``resolve`` method when all the wait processes are completed,  
-The rest of the text and HTML tags are displayed and the processing inside the ``<?te`` method is performed.
+The rest of the text and HTML tags are displayed and the processing inside the ``<?hte`` method is performed.
 
-If the execution form is ``<?sync``, it will be roughly divided into two stages: back-end processing, and if it is ``<?te``, it will be front-end processing.
+If the execution form is ``<?sync``, it will be roughly divided into two stages: back-end processing, and if it is ``<?hte``, it will be front-end processing.
 
 ```php
 <?sync
@@ -448,7 +448,7 @@ setTimeout(function(){
 },2000);
 ?>
 ----
-now Date = <?te echo(text); ?>
+now Date = <?hte echo(text); ?>
 ```
 
 This makes it possible to output with the following contents after a waiting time of 2 seconds.
@@ -496,8 +496,8 @@ h.listen(1122);
 Set the ``index.hte`` file as shown below.
 
 ```html
-<p>METHOD = <?te echo(request.method); ?></p>
-<p>URL = <?te echo(request.url); ?></p>
+<p>METHOD = <?hte echo(request.method); ?></p>
+<p>URL = <?hte echo(request.url); ?></p>
 ```
 
 After that, with index.js executed and the server started,
@@ -515,7 +515,7 @@ Response objects can be used as well.
 You can change the status code on ``index.hte`` as shown below.
 
 ```html
-<?te
+<?hte
 response:statusCode = 404;
 ?>
 <p>404 Page Not Found.</p>

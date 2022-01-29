@@ -1,4 +1,4 @@
-<?te 
+<?hte 
 response.statusCode = 301;
 response.setHeader("location","/page_1");
 ?>

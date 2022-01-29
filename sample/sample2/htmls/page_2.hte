@@ -11,15 +11,15 @@ setTimeout(function(){
 
 ?>
 
-<?te 
+<?hte 
 var data = { title: "Page 2 (Synchronous support)"};
 load("common/header.hte",data); 
 ?>
 
 <div>
     <h2>Page 2</h2>
-    <p>Now Date = <?te echo(nowDate); ?></p>
+    <p>Now Date = <?hte echo(nowDate); ?></p>
     <p><a href="/">Back</a></p>
 </div>
 
-<?te load("common/footer.hte"); ?>
+<?hte load("common/footer.hte"); ?>

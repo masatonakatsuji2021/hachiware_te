@@ -32,7 +32,7 @@ const Hachiware_TE = function(option){
 	 */
 	this.setContents = function(source, callback){
 
-		const startTag = "<?te";
+		const startTag = "<?hte";
 		const startSyncTag = "<?sync";
 		const endTag = "?>";
 

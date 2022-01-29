@@ -26,5 +26,5 @@ footer{
 <body>
 
 <header>
-    TEST APP - <?te if(this.title){ echo(this.title); } ?>
+    TEST APP - <?hte if(this.title){ echo(this.title); } ?>
 </header>

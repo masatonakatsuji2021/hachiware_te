@@ -1,12 +1,12 @@
-<?te 
+<?hte 
 var data = {title: "Page 5 (Get Web Request)"};
 load("common/header.hte", data); 
 ?>
 
 <div>
-    <p>METHOD = <?te echo(request.method); ?></p>
-    <p>URL = <?te echo(request.url); ?></p>
+    <p>METHOD = <?hte echo(request.method); ?></p>
+    <p>URL = <?hte echo(request.url); ?></p>
     <p><a href="/">Back</a></p>
 </div>
 
-<?te load("common/footer.hte"); ?>
+<?hte load("common/footer.hte"); ?>

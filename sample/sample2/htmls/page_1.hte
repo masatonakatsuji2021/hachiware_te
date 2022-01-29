@@ -1,4 +1,4 @@
-<?te 
+<?hte 
 
 var data = { title: "Page 1"}
 
@@ -12,4 +12,4 @@ load("common/header.hte", data);
 </div>
 
 
-<?te load("common/footer.hte"); ?>
+<?hte load("common/footer.hte"); ?>

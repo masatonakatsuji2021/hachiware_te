@@ -11,14 +11,14 @@ func(function(value){
 });
 ?>
 
-<?te 
+<?hte 
 var data = {title: "Page 4 (Synchronous support and get config load sample)"};
 load("common/header.hte", data); 
 ?>
 
 <div>
-    <p>Value = <?te echo(_value); ?></p>
+    <p>Value = <?hte echo(_value); ?></p>
     <p><a href="/">Back</a></p>
 </div>
 
-<?te load("common/footer.hte"); ?>
+<?hte load("common/footer.hte"); ?>

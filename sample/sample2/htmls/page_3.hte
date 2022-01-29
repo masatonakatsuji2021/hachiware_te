@@ -1,14 +1,14 @@
-<?te 
+<?hte 
 var data = {title: "Page 3 (get config load sample)"};
 load("common/header.hte", data);
 ?>
 
-<?te var data = loadJs("js/loadtest.js"); ?>
+<?hte var data = loadJs("js/loadtest.js"); ?>
 
 <div>
-    <p>aaa = <?te echo(data.aaa); ?></p>
-    <p>ccc = <?te echo(data.ccc); ?></p>
+    <p>aaa = <?hte echo(data.aaa); ?></p>
+    <p>ccc = <?hte echo(data.ccc); ?></p>
     <p><a href="/">Back</a></p>
 </div>
 
-<?te load("common/footer.hte"); ?>
+<?hte load("common/footer.hte"); ?>
