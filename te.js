@@ -269,6 +269,24 @@ module.exports = function(Hachiware_TE, _html, _sync, _syncScript, option, callb
 			const throws = function(error){
 
 				if(option.errorDebug){
+					console.log(error);
+				}
+
+				var output = false;
+				if(option.errorOutput){
+					output = true;
+				}
+
+				if(option.$parent){
+					if(option.$parent.errorDebug){
+						console.log(error);
+					}
+					if(option.$parent.errorOutput){
+						output = true;
+					}
+				}
+
+				if(output){
 					if(error.stack){
 						_string += error.stack;
 					}
@@ -326,7 +344,6 @@ module.exports = function(Hachiware_TE, _html, _sync, _syncScript, option, callb
 					}
 				}
 			}catch(error){
-				console.log(error);
 				throws(error);
 			}
 		};
